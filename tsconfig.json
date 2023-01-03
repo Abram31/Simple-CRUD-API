@@ -6,9 +6,6 @@
       "esnext",
       "dom.iterable"
     ],
-    "jsx": "react",
-    "module": "esnext",
-    "moduleResolution": "node",
     "noImplicitAny": true,
     "noFallthroughCasesInSwitch": true,
     "allowSyntheticDefaultImports": true,
@@ -17,7 +14,6 @@
     "strict": true,
     "skipLibCheck": true,
     "baseUrl": "./src",
-    "resolveJsonModule": true
   },
   "include": [
     "./src/**/*",
