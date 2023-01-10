@@ -5,25 +5,27 @@ import { Iuser } from 'utils/types';
 export const saveUser = async (request: IncomingMessage, response: ServerResponse) => {
   const bodyValues = ['username', 'age', 'hobbies'];
   let body = '';
-  // let newBody = '';
+  const id = randomBytes(16).toString('hex');
   request.on('data', (chunk) => {
     body += chunk;
   });
-  await request.on('end', async () => {
+  const data = await request.on('end', () => {
     try {
       const bodyRequest: string[] = Object.keys(JSON.parse(body));
       const checkBody = bodyRequest.filter((item) => {
-        console.log(item);
         return bodyValues.includes(item);
       });
-      console.log(checkBody);
+
       if (checkBody.length < 3) {
+        body = '';
+        console.log('Aib,rf');
+
         throw new Error();
       } else {
         const bodyWithId = JSON.parse(body);
-        bodyWithId.id = randomBytes(16).toString('hex');
-        console.log(bodyWithId);
+        bodyWithId.id = id;
         response.end(JSON.stringify(bodyWithId));
+        return JSON.stringify(bodyWithId);
       }
     } catch {
       response
@@ -31,11 +33,7 @@ export const saveUser = async (request: IncomingMessage, response: ServerRespons
           'Content-Type': 'text/plain',
         })
         .end(JSON.stringify(`Method: ${request.method}`));
-      console.log(request.method);
     }
   });
-  const bodyWithId = JSON.parse(body);
-  bodyWithId.id = randomBytes(16).toString('hex');
-  const resultBody = JSON.stringify(bodyWithId);
-  return resultBody;
+  return { id: id, body: body };
 };
