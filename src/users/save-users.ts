@@ -9,7 +9,7 @@ export const saveUser = async (request: IncomingMessage, response: ServerRespons
   request.on('data', (chunk) => {
     body += chunk;
   });
-  const data = await request.on('end', () => {
+  await request.on('end', () => {
     try {
       const bodyRequest: string[] = Object.keys(JSON.parse(body));
       const checkBody = bodyRequest.filter((item) => {

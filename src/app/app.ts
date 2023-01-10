@@ -1,10 +1,13 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import cluster from 'cluster';
 import { arg } from './arg';
-import { METHODS } from './constants';
-import { saveUser } from '../users/save-user';
-import { Iuser } from 'utils/types';
+import { ERR, METHODS } from './constants';
+import { saveUser } from '../users/save-users';
+import { Iuser } from '../utils/types';
 import { saveUserEmit } from '../users/save-user-emitter';
+import { getUsers } from '../users/get-users';
+import { ERROR } from '../utils/error';
+import { getUser } from '../users/get-user';
 
 const usersCollect: Array<Iuser> = [];
 const bodyValues = ['username', 'age', 'hobbies'];
@@ -12,15 +15,28 @@ const bodyValues = ['username', 'age', 'hobbies'];
 export const app = async (request: IncomingMessage, response: ServerResponse) => {
   console.log(`Worker ${process.pid} requested`);
   response.setHeader('Content-Type', 'application/json');
-  const [api, users, id, ...rest] = request.url ? request.url.split('/').filter(Boolean) : [];
-  // console.log('api:', api, 'users:', users, 'id:', id, 'rest:', rest);
+  const req = request.url ? request.url.split('/').filter(Boolean) : [];
+  // const [api, users, id, ...rest] = request.url ? request.url.split('/').filter(Boolean) : [];
 
   const method = request.method;
-  // console.log(method === METHODS.GET);
-  // console.log(METHODS);
+  const url = request.url || '/';
+
   switch (method) {
     case METHODS.GET:
-      response.end(JSON.stringify(usersCollect));
+      console.log(getUsers(url));
+
+      if (getUsers(url)) {
+        response.end(JSON.stringify(usersCollect));
+        break;
+      }
+
+      if (getUser(req)) {
+        const id = getUser(req);
+        const user = usersCollect.find((user) => user.id === id);
+        response.end(JSON.stringify(user));
+      } else {
+        ERROR(response, ERR.RESOURCE_NOT_FOUND);
+      }
       break;
 
     case METHODS.POST:
