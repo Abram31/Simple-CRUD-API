@@ -1,6 +1,7 @@
 export const routes = {
   users: 'users',
 };
+export const bodyValues = ['username', 'age', 'hobbies'];
 
 export const METHODS = {
   GET: 'GET',

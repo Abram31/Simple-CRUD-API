@@ -1,8 +1,8 @@
-import { IncomingMessage, ServerResponse } from 'http';
+import { ServerResponse } from 'http';
 
-export const ERROR = (response: ServerResponse, err: string) => {
+export const ERROR = (response: ServerResponse, err: string, errStatus: number) => {
   response
-    .writeHead(404, {
+    .writeHead(errStatus, {
       'Content-Type': 'text/plain',
     })
     .end(JSON.stringify(err));

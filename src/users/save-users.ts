@@ -1,39 +1,23 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import { randomBytes } from 'crypto';
 import { Iuser } from 'utils/types';
+import { v4, validate } from 'uuid';
+import { validateBody } from '../utils/validate-body';
+import { ERROR } from '../utils/error';
+import { ERR } from '../app/constants';
 
 export const saveUser = async (request: IncomingMessage, response: ServerResponse) => {
-  const bodyValues = ['username', 'age', 'hobbies'];
   let body = '';
-  const id = randomBytes(16).toString('hex');
+  const id = v4();
   request.on('data', (chunk) => {
     body += chunk;
   });
   await request.on('end', () => {
-    try {
-      const bodyRequest: string[] = Object.keys(JSON.parse(body));
-      const checkBody = bodyRequest.filter((item) => {
-        return bodyValues.includes(item);
-      });
-
-      if (checkBody.length < 3) {
-        body = '';
-        console.log('Aib,rf');
-
-        throw new Error();
-      } else {
-        const bodyWithId = JSON.parse(body);
-        bodyWithId.id = id;
-        response.end(JSON.stringify(bodyWithId));
-        return JSON.stringify(bodyWithId);
-      }
-    } catch {
-      response
-        .writeHead(404, {
-          'Content-Type': 'text/plain',
-        })
-        .end(JSON.stringify(`Method: ${request.method}`));
-    }
+    // const validBody = validateBody(body);
+    // console.log(validBody);
+    // if (!validBody) {
+    //   throw 400;
+    // }
   });
   return { id: id, body: body };
 };
