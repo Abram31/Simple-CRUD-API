@@ -9,7 +9,6 @@ import { ERROR } from '../utils/error';
 import { getUser } from '../users/get-user';
 import { statusOK } from '../utils/statusOK';
 import { checkURL } from '../utils/check-url';
-import { v4, validate } from 'uuid';
 import { validateBody } from '../utils/validate-body';
 import { putUser } from '../users/put-user';
 
@@ -116,11 +115,20 @@ export const app = async (request: IncomingMessage, response: ServerResponse) =>
           }
         });
       } catch (err) {
-        ERROR(
-          response,
-          Number(err) === 400 ? ERR.BODY_VALIDATION : ERR.USER_NOT_FOUND,
-          Number(err)
-        );
+        ERROR(response, Number(err) === 400 ? ERR.USERID_INVALID : ERR.USER_NOT_FOUND, Number(err));
+      }
+      break;
+    case METHODS.DELETE:
+      try {
+        const checkURLWithID = checkURL({ URL: url, correctPattern: ['api', 'users'], id: true });
+        if (!checkURLWithID) throw 400;
+        const indexID = putUser(url, usersCollect);
+        const deleteUser = usersCollect.splice(Number(indexID), 1)[0];
+        console.log(deleteUser);
+
+        response.writeHead(204).end(JSON.stringify(deleteUser));
+      } catch (err) {
+        ERROR(response, Number(err) === 400 ? ERR.USERID_INVALID : ERR.USER_NOT_FOUND, Number(err));
       }
       break;
     default:

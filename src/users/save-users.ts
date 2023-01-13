@@ -9,15 +9,15 @@ import { ERR } from '../app/constants';
 export const saveUser = async (request: IncomingMessage, response: ServerResponse) => {
   let body = '';
   const id = v4();
-  request.on('data', (chunk) => {
+  await request.on('data', (chunk) => {
     body += chunk;
   });
-  await request.on('end', () => {
-    // const validBody = validateBody(body);
-    // console.log(validBody);
-    // if (!validBody) {
-    //   throw 400;
-    // }
-  });
+  // await request.on('end', () => {
+  //   // const validBody = validateBody(body);
+  //   // console.log(validBody);
+  //   // if (!validBody) {
+  //   //   throw 400;
+  //   // }
+  // });
   return { id: id, body: body };
 };
