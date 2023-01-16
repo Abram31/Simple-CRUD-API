@@ -14,11 +14,6 @@ export const putUser = (URL: string, usersCollect: Array<Iuser>) => {
       return true;
     }
   });
-  // try {
-  if (checkUser) {
-    return indexUser;
-  } else {
-    throw 404;
-  }
-  // }
+
+  return indexUser;
 };

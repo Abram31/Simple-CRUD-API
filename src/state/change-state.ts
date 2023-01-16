@@ -1,5 +1,5 @@
 import { writeFile } from 'fs';
-import { dirname, join } from 'path';
+import { join } from 'path';
 import { Iuser } from '../utils/types';
 import { readJSON } from './read-file';
 
@@ -18,7 +18,6 @@ export class State {
     console.log(currentData);
     if (currentData) {
       data.push(newData);
-      // console.log(data);
       writeFile(join(__dirname, 'state.json'), JSON.stringify(data), (err) => {
         if (err) throw err;
       });

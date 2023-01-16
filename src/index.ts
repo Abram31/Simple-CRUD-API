@@ -1,12 +1,10 @@
 import 'dotenv/config';
 import { app } from './app/app';
 import { createServer } from 'http';
-import { checkURL } from './utils/check-url';
 import { args } from './utils/args';
 import cluster from 'node:cluster';
 import { cpus } from 'os';
 import process from 'process';
-import { State } from './state/change-state';
 
 const PORT = process.env.PORT;
 const server = createServer(app);
@@ -22,14 +20,12 @@ if (args() === 'cluster' && cluster.isPrimary) {
     });
     console.log(cluster.worker);
   }
-} else if (cluster.isWorker) {
-  const PORT = process.env.WORKER_PORT;
+} else {
+  const PORT = process.env.PORT;
+  console.log(PORT);
+
   server.listen(PORT, () => {
     console.log(`Worker ${process.pid} server running at http://localhost:${PORT}/`);
     process.send && process.send(JSON.stringify({ id: process.pid }));
   });
-  // process.send?('111')
-  // process.on('message', (msg) => {
-  //   console.log(msg);
-  // });
 }

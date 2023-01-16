@@ -30,33 +30,20 @@ export const app = async (request: IncomingMessage, response: ServerResponse) =>
 
   switch (method) {
     case METHODS.GET:
-      console.log('get');
-
-      console.log(checkWithoutID);
-
       if (checkWithoutID) {
-        console.log(path);
-
         const data: string | null = await readJSON(path);
-        console.log(data);
 
         response.end(data || []);
         break;
       }
 
-      console.log(checkWithID);
-
       try {
-        console.log(checkWithID);
-
         if (checkWithID) {
           const data: string | null = await readJSON(path);
           const parseData: null | Iuser[] = data && JSON.parse(data);
           const id = getUser(req);
-          console.log(id);
 
           const user = parseData && parseData.find((user) => user.id === id);
-          console.log(user);
 
           if (user) {
             response.end(JSON.stringify(user));
@@ -67,8 +54,6 @@ export const app = async (request: IncomingMessage, response: ServerResponse) =>
           throw 400;
         }
       } catch (err) {
-        console.log(err);
-
         ERROR(response, err === Number(400) ? ERR.USERID_INVALID : ERR.USER_NOT_FOUND, Number(err));
       }
       break;
@@ -81,17 +66,14 @@ export const app = async (request: IncomingMessage, response: ServerResponse) =>
             const checkBody = bodyRequest.filter((item) => {
               return bodyValues.includes(item);
             });
-            console.log(checkBody);
             try {
               const validBody = validateBody(data.body);
-              console.log(validBody);
 
               if (!validBody) {
                 throw 400;
               }
               const body = JSON.parse(data.body);
               body.id = data.id;
-              console.log(body);
               new State().appendData(body);
 
               // usersCollect.push(body);
@@ -118,7 +100,6 @@ export const app = async (request: IncomingMessage, response: ServerResponse) =>
           body += chunk;
         });
         request.on('end', () => {
-          console.log(body);
           try {
             const checkBody = validateBody(body);
             if (checkBody) {
@@ -150,6 +131,7 @@ export const app = async (request: IncomingMessage, response: ServerResponse) =>
         if (!checkURLWithID) throw 400;
         readJSON(path).then(async (data) => {
           const dataParse = data && JSON.parse(data);
+          if (!dataParse) throw 404;
           const indexID = putUser(url, dataParse);
           const deleteUser = dataParse.splice(Number(indexID), 1)[0];
 
@@ -167,6 +149,5 @@ export const app = async (request: IncomingMessage, response: ServerResponse) =>
           'Content-Type': 'text/plain',
         })
         .end(JSON.stringify(`Method: ${method}`));
-      console.log(method);
   }
 };
