@@ -12,9 +12,10 @@ import { checkURL } from '../utils/check-url';
 import { validateBody } from '../utils/validate-body';
 import { putUser } from '../users/put-user';
 import { State } from '../state/change-state';
-import { readFile, truncate, writeFile } from 'fs/promises';
+import { truncate, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { readJSON } from '../state/read-file';
+import json from '../state/state.json';
 const usersCollect: Array<Iuser> = [];
 
 export const app = async (request: IncomingMessage, response: ServerResponse) => {

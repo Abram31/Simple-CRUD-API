@@ -12,12 +12,5 @@ export const saveUser = async (request: IncomingMessage, response: ServerRespons
   await request.on('data', (chunk) => {
     body += chunk;
   });
-  // await request.on('end', () => {
-  //   // const validBody = validateBody(body);
-  //   // console.log(validBody);
-  //   // if (!validBody) {
-  //   //   throw 400;
-  //   // }
-  // });
   return { id: id, body: body };
 };

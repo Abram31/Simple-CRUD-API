@@ -7,12 +7,10 @@ export const validateBody = (body: string) => {
     Object.keys(bodyParse).filter((item) => bodyValues.includes(item)).length === bodyValues.length;
 
   const validateHobbies = Array.isArray(bodyParse.hobbies);
-  console.log(bodyParse.hobbies);
 
   const validateItemsHobbies =
     bodyParse.hobbies.filter((item) => typeof item === 'string').length ===
     bodyParse.hobbies.length;
-  console.log(validateItemsHobbies);
 
   if (!validateItemsHobbies || !validateItemsHobbies || !validateItemsHobbies) {
     throw 400;

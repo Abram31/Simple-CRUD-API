@@ -1,6 +1,6 @@
 # Simple CRUD API
 
-... written by TypeScript with Node.js.
+Written by TypeScript with Node.js.
 
 Task is [here](https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments/crud-api/assignment.md).
 
@@ -23,14 +23,9 @@ npm run start:dev
 Run the application in production mode
 
 ```
-<!-- npm run start:prod -->
+npm run start:prod
 ```
 
-Run tests scenarios for API
-
-```
-npm test
-```
 
 Run cluster mode with default load balancer and one in-memory-database for all workers
 
@@ -61,9 +56,3 @@ Implemented endpoint: `api/users`
 `age` — user's age (number, **required**)
 
 `hobbies` — user's hobbies (array of strings or empty array, **required**)
-
-## ⚙️ Postman
-
-You can find Postman collection with all relized API requests in the root of the repository.
-
-Have fun! :)

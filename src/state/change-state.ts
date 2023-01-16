@@ -15,7 +15,6 @@ export class State {
     const path = join(__dirname, '../state', 'state.json');
     const currentData: string | null = await readJSON(path);
     const data = currentData ? JSON.parse(currentData) : null;
-    console.log(currentData);
     if (currentData) {
       data.push(newData);
       writeFile(join(__dirname, 'state.json'), JSON.stringify(data), (err) => {

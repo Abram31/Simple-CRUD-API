@@ -18,11 +18,9 @@ if (args() === 'cluster' && cluster.isPrimary) {
     worker.on('message', (msg) => {
       console.log(`A worker is now connected to ${worker.process.pid}:${msg}`);
     });
-    console.log(cluster.worker);
   }
 } else {
   const PORT = process.env.PORT;
-  console.log(PORT);
 
   server.listen(PORT, () => {
     console.log(`Worker ${process.pid} server running at http://localhost:${PORT}/`);

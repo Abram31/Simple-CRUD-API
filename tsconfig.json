@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "module": "commonjs",
     "target": "esnext",
     "lib": [
       "dom",
@@ -17,9 +18,11 @@
     "strict": true,
     "skipLibCheck": true,
     "baseUrl": "./src",
+    "resolveJsonModule": true
   },
   "include": [
     "./src/**/*",
-    "styled.d.ts"
+    "styled.d.ts",
+    "./src/state/state.json"
   ]
 }
