@@ -12,7 +12,7 @@ import { checkURL } from '../utils/check-url';
 import { validateBody } from '../utils/validate-body';
 import { putUser } from '../users/put-user';
 import { State } from '../state/change-state';
-import { readFile } from 'fs/promises';
+import { readFile, truncate, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { readJSON } from '../state/read-file';
 const usersCollect: Array<Iuser> = [];
@@ -24,148 +24,149 @@ export const app = async (request: IncomingMessage, response: ServerResponse) =>
 
   const method = request.method;
   const url = request.url || '/';
-  if (url === '/api/users') {
-    switch (method) {
-      case METHODS.GET:
-        const checkWithoutID = checkURL({ URL: url, correctPattern: ['api', 'users'], id: false });
-        if (checkWithoutID) {
-          const path = join(__dirname, '../state', 'state.json');
-          console.log(path);
+  const path = join(__dirname, '../state', 'state.json');
+  const checkWithoutID = checkURL({ URL: url, correctPattern: ['api', 'users'], id: false });
+  const checkWithID = checkURL({ URL: url, correctPattern: ['api', 'users'], id: true });
 
-          const data: string | null = await readJSON(path);
-          console.log(data);
+  switch (method) {
+    case METHODS.GET:
+      console.log('get');
 
-          response.end(data || []);
-          break;
-        }
-        const checkWithID = checkURL({ URL: url, correctPattern: ['api', 'users'], id: true });
-        try {
-          console.log(checkWithID);
+      console.log(checkWithoutID);
 
-          if (checkWithID) {
-            const id = getUser(req);
-            console.log(id);
+      if (checkWithoutID) {
+        console.log(path);
 
-            const user = usersCollect.find((user) => user.id === id);
-            if (user) {
-              response.end(JSON.stringify(user));
-            } else {
-              throw 404;
-            }
-          } else {
-            throw 400;
-          }
-        } catch (err) {
-          console.log(err);
+        const data: string | null = await readJSON(path);
+        console.log(data);
 
-          ERROR(
-            response,
-            err === Number(400) ? ERR.USERID_INVALID : ERR.USER_NOT_FOUND,
-            Number(err)
-          );
-        }
+        response.end(data || []);
         break;
+      }
 
-      case METHODS.POST:
-        try {
-          if (url === '/api/users') {
-            saveUser(request, response).then((data) => {
-              const bodyRequest: string[] = Object.keys(JSON.parse(data.body));
-              const checkBody = bodyRequest.filter((item) => {
-                return bodyValues.includes(item);
-              });
-              console.log(checkBody);
-              try {
-                const validBody = validateBody(data.body);
-                console.log(validBody);
+      console.log(checkWithID);
 
-                if (!validBody) {
-                  throw 400;
-                }
-                const body = JSON.parse(data.body);
-                body.id = data.id;
-                console.log(body);
-                new State().appendData(body);
+      try {
+        console.log(checkWithID);
 
-                // usersCollect.push(body);
-                statusOK(response, body, 201);
-              } catch (err) {
-                ERROR(response, ERR.BODY_INVALID_FORMAT, Number(err));
-              }
-            });
+        if (checkWithID) {
+          const data: string | null = await readJSON(path);
+          const parseData: null | Iuser[] = data && JSON.parse(data);
+          const id = getUser(req);
+          console.log(id);
+
+          const user = parseData && parseData.find((user) => user.id === id);
+          console.log(user);
+
+          if (user) {
+            response.end(JSON.stringify(user));
           } else {
             throw 404;
           }
-        } catch (err) {
-          ERROR(response, ERR.RESOURCE_NOT_FOUND, Number(err));
+        } else {
+          throw 400;
         }
+      } catch (err) {
+        console.log(err);
 
-        break;
+        ERROR(response, err === Number(400) ? ERR.USERID_INVALID : ERR.USER_NOT_FOUND, Number(err));
+      }
+      break;
 
-      case METHODS.PUT:
-        try {
-          const checkURLWithID = checkURL({ URL: url, correctPattern: ['api', 'users'], id: true });
-          if (!checkURLWithID) throw 400;
-          const indexID = putUser(url, usersCollect);
-          let body = '';
-          request.on('data', (chunk) => {
-            body += chunk;
-          });
-          request.on('end', () => {
-            console.log(body);
+    case METHODS.POST:
+      try {
+        if (url === '/api/users') {
+          saveUser(request, response).then((data) => {
+            const bodyRequest: string[] = Object.keys(JSON.parse(data.body));
+            const checkBody = bodyRequest.filter((item) => {
+              return bodyValues.includes(item);
+            });
+            console.log(checkBody);
             try {
-              const checkBody = validateBody(body);
-              if (checkBody) {
-                usersCollect[Number(indexID)] = {
-                  ...usersCollect[Number(indexID)],
-                  ...JSON.parse(body),
-                };
-                response.end(body);
-              } else {
+              const validBody = validateBody(data.body);
+              console.log(validBody);
+
+              if (!validBody) {
                 throw 400;
               }
+              const body = JSON.parse(data.body);
+              body.id = data.id;
+              console.log(body);
+              new State().appendData(body);
+
+              // usersCollect.push(body);
+              statusOK(response, body, 201);
             } catch (err) {
               ERROR(response, ERR.BODY_INVALID_FORMAT, Number(err));
             }
           });
-        } catch (err) {
-          ERROR(
-            response,
-            Number(err) === 400 ? ERR.USERID_INVALID : ERR.USER_NOT_FOUND,
-            Number(err)
-          );
+        } else {
+          throw 404;
         }
-        break;
-      case METHODS.DELETE:
-        try {
-          const checkURLWithID = checkURL({ URL: url, correctPattern: ['api', 'users'], id: true });
-          if (!checkURLWithID) throw 400;
-          const indexID = putUser(url, usersCollect);
-          const deleteUser = usersCollect.splice(Number(indexID), 1)[0];
-          console.log(deleteUser);
+      } catch (err) {
+        ERROR(response, ERR.RESOURCE_NOT_FOUND, Number(err));
+      }
 
+      break;
+
+    case METHODS.PUT:
+      try {
+        const checkURLWithID = checkURL({ URL: url, correctPattern: ['api', 'users'], id: true });
+        if (!checkURLWithID) throw 400;
+        let body = '';
+        request.on('data', (chunk) => {
+          body += chunk;
+        });
+        request.on('end', () => {
+          console.log(body);
+          try {
+            const checkBody = validateBody(body);
+            if (checkBody) {
+              readJSON(path).then(async (data) => {
+                const dataParse = data && JSON.parse(data);
+                const indexID = putUser(url, dataParse);
+                dataParse[Number(indexID)] = {
+                  ...dataParse[Number(indexID)],
+                  ...JSON.parse(body),
+                };
+                await truncate(path);
+                writeFile(path, JSON.stringify(dataParse));
+                response.end(body);
+              });
+            } else {
+              throw 400;
+            }
+          } catch (err) {
+            ERROR(response, ERR.BODY_INVALID_FORMAT, Number(err));
+          }
+        });
+      } catch (err) {
+        ERROR(response, Number(err) === 400 ? ERR.USERID_INVALID : ERR.USER_NOT_FOUND, Number(err));
+      }
+      break;
+    case METHODS.DELETE:
+      try {
+        const checkURLWithID = checkURL({ URL: url, correctPattern: ['api', 'users'], id: true });
+        if (!checkURLWithID) throw 400;
+        readJSON(path).then(async (data) => {
+          const dataParse = data && JSON.parse(data);
+          const indexID = putUser(url, dataParse);
+          const deleteUser = dataParse.splice(Number(indexID), 1)[0];
+
+          await truncate(path);
+          writeFile(path, JSON.stringify(dataParse));
           response.writeHead(204).end(JSON.stringify(deleteUser));
-        } catch (err) {
-          ERROR(
-            response,
-            Number(err) === 400 ? ERR.USERID_INVALID : ERR.USER_NOT_FOUND,
-            Number(err)
-          );
-        }
-        break;
-      default:
-        response
-          .writeHead(404, {
-            'Content-Type': 'text/plain',
-          })
-          .end(JSON.stringify(`Method: ${method}`));
-        console.log(method);
-    }
-  } else {
-    response
-      .writeHead(404, {
-        'Content-Type': 'text/plain',
-      })
-      .end(JSON.stringify(ERR.RESOURCE_NOT_FOUND));
+        });
+      } catch (err) {
+        ERROR(response, Number(err) === 400 ? ERR.USERID_INVALID : ERR.USER_NOT_FOUND, Number(err));
+      }
+      break;
+    default:
+      response
+        .writeHead(404, {
+          'Content-Type': 'text/plain',
+        })
+        .end(JSON.stringify(`Method: ${method}`));
+      console.log(method);
   }
 };
