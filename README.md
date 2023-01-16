@@ -4,7 +4,7 @@ Written by TypeScript with Node.js.
 
 Task is [here](https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments/crud-api/assignment.md).
 
-![image](https://user-images.githubusercontent.com/29270751/174495818-df88cd45-66f7-45a5-a6e5-77b90ea822ab.png)
+![image](https://i.ibb.co/xJVsmMz/Screenshot-2023-01-16-201133.jpg)
 
 
 
