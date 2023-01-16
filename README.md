@@ -35,7 +35,7 @@ npm run start:multi
 
 In console you can watch which worker response on the request. Workers should round-robin and data from database should be consistent for all workers.
 
-## 💥 API
+## API
 
 Implemented endpoint: `api/users`
 
